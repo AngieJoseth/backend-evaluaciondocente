@@ -42,5 +42,9 @@ class Question extends Model implements Auditable
         return $this->belongsToMany(Answer::class)->withTimestamps();
     }
 
+    public function status()
+    {
+        return $this->belongsTo(Catalogue::class, "status_id");
+    }
 
 }
