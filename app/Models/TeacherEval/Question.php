@@ -34,7 +34,7 @@ class Question extends Model implements Auditable
 
     public function type()
     {
-        return $this->belongsTo(Catalogue::class);
+        return $this->belongsTo(Catalogue::class, 'type_id');
     }
 
     public function answers()
