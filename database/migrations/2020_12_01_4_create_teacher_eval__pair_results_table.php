@@ -10,9 +10,9 @@ class CreateTeacherEvalPairResultsTable extends Migration
     {
         Schema::connection('pgsql-teacher-eval')->create('pair_results', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('answer_question_id')->constrained('answer_question');
-            $table->foreignId('detail_evaluation_id');
-            $table->foreignId('state_id')->constrained('ignug.states');
+            $table->foreignId('answer_question_id')->comment('Pregunta y respuesta')->constrained('answer_question');
+            $table->foreignId('detail_evaluation_id')->comment('Detalle Evaluacion Realizada');
+            $table->foreignId('state_id')->comment('Activo o Inactivo')->constrained('ignug.states');
             $table->timestamps();
         });
     }

@@ -10,11 +10,11 @@ class CreateTeacherEvalEvaluationTypesTable extends Migration
     {
         Schema::connection('pgsql-teacher-eval')->create('evaluation_types', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('parent_id')->nullable()->comment('hace una tabla recursiva por eso hace referencia a una misma tabla')->constrained('evaluation_types');
+            $table->foreignId('parent_id')->nullable()->comment('Hace tabla recursiva por eso hace referencia a una misma tabla')->constrained('evaluation_types');
             $table->foreignId('state_id')->constrained('ignug.states');
-            $table->string('name')->unique();
-            $table->string('code')->unique();
-            $table->integer('percentage')->nullable();
+            $table->string('name')->unique()->comment('Descripcion Tipo Evaluacion');
+            $table->string('code')->unique()->comment('Codigo Tipo Evaluacion');
+            $table->integer('percentage')->nullable()->comment('Porcentaje cada Tipo Evaluacion');;
             $table->integer('global_percentage')->nullable()->comment('Este porcentaje es para calculos finales.');
             $table->timestamps();
 

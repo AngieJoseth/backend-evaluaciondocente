@@ -18,6 +18,15 @@ class StudentEvaluationController extends Controller
     public function index(){
         return StudentResult::all();
     } 
+    public function show($id)
+    {
+        $studentResult = StudentResult::findOrFail($id);
+        return response()->json([
+            'data' =>[
+                'studentResult' => $studentResult
+            ]
+        ]);
+    }  
 
     public function store(Request $request)
     {

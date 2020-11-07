@@ -41,6 +41,8 @@ class QuestionController extends Controller
         $question->code = $dataQuestion['code'];
         $question->order = $dataQuestion['order'];
         $question->name = $dataQuestion['name'];
+        $question->description = $dataQuestion['description'];
+
 
         $state = State::findOrFail($dataState['id']);
         $type_id = Catalogue::find($dataTypeId['id']);

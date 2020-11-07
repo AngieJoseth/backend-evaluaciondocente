@@ -6,6 +6,8 @@ use App\Http\Controllers\TeacherEval\EvaluationTypeController;
 use App\Http\Controllers\TeacherEval\PairEvaluationController;
 use App\Http\Controllers\TeacherEval\SelfEvaluationController;
 use App\Http\Controllers\TeacherEval\EvaluationController;
+use App\Http\Controllers\TeacherEval\StudentEvaluationController;
+
 
 
 Route::apiResource('evaluation_types',EvaluationTypeController::class);
@@ -18,7 +20,7 @@ Route::put('answers/{id}', 'App\Http\Controllers\TeacherEval\QuestionController@
 Route::delete('answers/{id}', 'App\Http\Controllers\TeacherEval\QuestionController@destroyAnswer');
 Route::apiResource('evaluations', EvaluationController::class);
 Route::apiResource('detail_evaluations', App\Http\Controllers\TeacherEval\DetailEvaluationController::class);
-Route::apiResource('student_evaluations', App\Http\Controllers\TeacherEval\StudentEvaluationController::class);
+Route::apiResource('student_evaluations', StudentEvaluationController::class);
 Route::apiResource('self_evaluations', SelfEvaluationController::class);
 Route::apiResource('pair_evaluations', PairEvaluationController::class)->except(['store']);
 Route::post('pair_evaluations/teachers',[PairEvaluationController::class,'storeTeacherEvalutor']);

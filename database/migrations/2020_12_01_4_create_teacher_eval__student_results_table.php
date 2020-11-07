@@ -10,10 +10,10 @@ class CreateTeacherEvalStudentResultsTable extends Migration
     {
         Schema::connection('pgsql-teacher-eval')->create('student_results', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('answer_question_id')->comment('')->constrained('answer_question');
-            $table->foreignId('subject_teacher_id')->constrained('ignug.subject_teacher');
-            $table->foreignId('student_id')->constrained('ignug.students');
-            $table->foreignId('state_id')->constrained('ignug.states');
+            $table->foreignId('answer_question_id')->comment('Pregunta y respuesta')->constrained('answer_question');
+            $table->foreignId('subject_teacher_id')->comment('Asignatura Profesor')->constrained('ignug.subject_teacher');
+            $table->foreignId('student_id')->comment('Informacion Estudiante Evaluador')->constrained('ignug.students');
+            $table->foreignId('state_id')->comment('Activo y Inactivo')->constrained('ignug.states');
             $table->timestamps();
         });
     }

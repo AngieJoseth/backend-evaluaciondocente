@@ -10,11 +10,11 @@ class CreateTeacherEvalAnswersTable extends Migration
     {
         Schema::connection('pgsql-teacher-eval')->create('answers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('state_id')->constrained('ignug.states');
-            $table->string('code')->unique();
-            $table->integer('order')->unique();
-            $table->string('name')->unique();
-            $table->text('value');
+            $table->foreignId('state_id')->comment('Activo o Inactivo')->constrained('ignug.states');
+            $table->string('code')->unique()->comment('Codigo Respuesta');
+            $table->integer('order')->unique()->comment('Orden Respuesta');
+            $table->string('name')->unique()->comment('Respuesta');
+            $table->text('value')->comment('Valor Respuesta');
             $table->timestamps();
         });
     }
