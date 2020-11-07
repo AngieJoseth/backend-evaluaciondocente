@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateEvaluationTypesTable extends Migration
+class CreateTeacherEvalEvaluationTypesTable extends Migration
 {
     public function up()
     {

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePairResultsTable extends Migration
+class CreateTeacherEvalPairResultsTable extends Migration
 {
     public function up()
     {
