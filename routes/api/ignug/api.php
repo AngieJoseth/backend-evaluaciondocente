@@ -16,6 +16,7 @@ use App\Http\Controllers\Ignug\TeacherController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::get('cataloguesTypes', [CatalogueController::class, 'showCatalogueByType']); 
 Route::apiResource('catalogues', CatalogueController::class);
 
 Route::group(['prefix' => 'images'], function () {
