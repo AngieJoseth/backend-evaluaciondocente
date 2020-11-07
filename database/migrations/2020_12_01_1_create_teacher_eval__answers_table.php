@@ -10,6 +10,7 @@ class CreateTeacherEvalAnswersTable extends Migration
     {
         Schema::connection('pgsql-teacher-eval')->create('answers', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('status_id')->constrained('ignug.catalogues');      
             $table->foreignId('state_id')->constrained('ignug.states');
             $table->string('code')->unique();
             $table->integer('order')->unique();
