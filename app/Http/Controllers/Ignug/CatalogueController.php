@@ -17,6 +17,13 @@ class CatalogueController extends Controller
             ]]);
     }
 
+    public function showCatalogueByType(Request $request)
+    {
+        $typesCatalogues = Catalogue::where('type',$request['type'])->get();
+        
+            return response()->json(['data'=>$typesCatalogues], 200);
+    }
+
     public function show(Catalogue $catalogue)
     {
         return response()->json([
