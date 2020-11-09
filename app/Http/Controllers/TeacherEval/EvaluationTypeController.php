@@ -11,11 +11,8 @@ class EvaluationTypeController extends Controller
 {
     public function index()
     {
-        $state = State::where('code', '1')->first();
-        $evaluationTypes = EvaluationType::whereHas('state', function ($query) use ($state) {
-            $query->where(id, $state->id);
-        })->get();
-        return response()->json(['data'=>$evaluationTypes],200);
+        $evaluationType = EvaluationType::where('state_id', $state->id)->paginate(10000);
+        
     }
 
     public function show($id)
