@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\TeacherEval;
+namespace App\Models\TeacherEval;
 
-use App\Http\Controllers\Controller;
-use App\Models\TeacherEval\EvaluationType;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 use App\Models\Ignug\State;
-use Illuminate\Http\Request;
+use App\Models\Ignug\Catalogue;
 
 class Question extends Model implements Auditable
 {
