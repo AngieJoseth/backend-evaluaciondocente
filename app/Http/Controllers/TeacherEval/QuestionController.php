@@ -16,10 +16,9 @@ class QuestionController extends Controller
 {
     public function index()
     {
-        $state = State::where('code','1')->first();
-        $questions = Question::with('status', 'type', 'evaluationType')->where('state_id',$state->id)->get();
-
-        return response()->json( ['data'=>$questions], 200);
+        $question = Question::where('state_id',State::where('code', '1')->first()->id)
+        ->get();
+        return response()->json(['data'=>$question ],200);
     }
 
     public function show($id)

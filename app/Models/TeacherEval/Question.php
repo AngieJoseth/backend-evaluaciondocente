@@ -1,3 +1,11 @@
+<?php
+
+namespace App\Http\Controllers\TeacherEval;
+
+use App\Http\Controllers\Controller;
+use App\Models\TeacherEval\EvaluationType;
+use App\Models\Ignug\State;
+use Illuminate\Http\Request;
 
 class Question extends Model implements Auditable
 {
