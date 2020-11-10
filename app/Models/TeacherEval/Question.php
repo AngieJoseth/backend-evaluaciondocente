@@ -1,12 +1,3 @@
-<?php
-
-namespace App\Models\TeacherEval;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use OwenIt\Auditing\Contracts\Auditable;
-use App\Models\Ignug\State;
-use App\Models\Ignug\Catalogue;
 
 class Question extends Model implements Auditable
 {
@@ -34,7 +25,7 @@ class Question extends Model implements Auditable
 
     public function type()
     {
-        return $this->belongsTo(Catalogue::class);
+        return $this->belongsTo(Catalogue::class, 'type_id');
     }
 
     public function answers()
@@ -42,5 +33,9 @@ class Question extends Model implements Auditable
         return $this->belongsToMany(Answer::class)->withTimestamps();
     }
 
+    public function status()
+    {
+        return $this->belongsTo(Catalogue::class, "status_id");
+    }
 
 }
