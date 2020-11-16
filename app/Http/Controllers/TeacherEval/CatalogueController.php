@@ -11,10 +11,23 @@ class CatalogueController extends Controller
 {
     public function index(Request $request)
     {
-        return response()->json([
-            'data' => [
-                'catalogues' => Catalogue::where('type',$request->type)->get()
-            ]]);
+        $catalogues = Catalogue::where('type',$request->type)->where('state_id', State::where('code',State::ACTIVE)->first()->id)->get();
+        if (sizeof($catalogues)=== 0) {
+            return response()->json([
+                'data' => null,
+                'msg' => [
+                    'summary' => 'Catalogos no encontrando',
+                    'detail' => 'Intenta de nuevo',
+                    'code' => '404'
+                ]], 404);
+        }
+        return response()->json(['data' => $catalogues,
+            'msg' => [
+                'summary' => 'success',
+                'detail' => 'Se consulto correctamente',
+                'code' => '200',
+            ]], 200);
+        
     }
 
     public function show(Catalogue $catalogue)

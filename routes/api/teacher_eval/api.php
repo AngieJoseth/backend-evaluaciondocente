@@ -7,6 +7,8 @@ use App\Http\Controllers\TeacherEval\PairEvaluationController;
 use App\Http\Controllers\TeacherEval\SelfEvaluationController;
 use App\Http\Controllers\TeacherEval\EvaluationController;
 use App\Http\Controllers\TeacherEval\AnswerController;
+use App\Http\Controllers\TeacherEval\CatalogueController;
+
 
 
 
