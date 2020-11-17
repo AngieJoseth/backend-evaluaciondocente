@@ -16,16 +16,46 @@ class QuestionController extends Controller
 {
     public function index()
     {
-        $question = Question::where('state_id',State::where('code', '1')->first()->id)
-        ->get();
-        return response()->json(['data'=>$question ],200);
+        $state = State::where('code','1')->first();
+        $questions = Question::with('status', 'type', 'evaluationType')->where('state_id',$state->id)->get();
+
+        if (!$questions) {
+            return response()->json([
+                'data' => null,
+                'msg' => [
+                    'summary' => 'Preguntas no encontradas',
+                    'detail' => 'Intenta de nuevo',
+                    'code' => '404'
+                ]], 404);
+        }
+        return response()->json(['data' => $questions,
+            'msg' => [
+                'summary' => 'Preguntas',
+                'detail' => 'Se consulto correctamente preguntas',
+                'code' => '200',
+            ]], 200);
     }
 
     public function show($id)
     {
         $question = Question::findOrFail($id);
-        return response()->json(['data'=>$question], 200);
+        if (!$question) {
+            return response()->json([
+                'data' => null,
+                'msg' => [
+                    'summary' => 'Pregunta no encontrada',
+                    'detail' => 'Intenta de nuevo',
+                    'code' => '404'
+                ]], 404);
+        }
+        return response()->json(['data' => $question,
+            'msg' => [
+                'summary' => 'Pregunta',
+                'detail' => 'Se consulto correctamente la pregunta',
+                'code' => '200',
+            ]], 200);
     }  
+
     public function store(Request $request){
         $data = $request->json()->all();
 
@@ -60,7 +90,21 @@ class QuestionController extends Controller
 
         $question->answers()->attach( $answersIds); 
         
-        return response()->json( ['data' => $question], 201);
+        if (!$question) {
+            return response()->json([
+                'data' => null,
+                'msg' => [
+                    'summary' => 'Pregunta no creada',
+                    'detail' => 'Intenta de nuevo',
+                    'code' => '404'
+                ]], 404);
+        }
+        return response()->json(['data' => $question,
+            'msg' => [
+                'summary' => 'Pregunta',
+                'detail' => 'Se creo correctamente la pregunta',
+                'code' => '201',
+            ]], 201);
     }
     public function update(Request $request, $id)
     {
@@ -87,7 +131,21 @@ class QuestionController extends Controller
         
         $question->save();
         
-        return response()->json( ['data' => $question], 201);
+        if (!$question) {
+            return response()->json([
+                'data' => null,
+                'msg' => [
+                    'summary' => 'Pregunta no actualizada',
+                    'detail' => 'Intenta de nuevo',
+                    'code' => '404'
+                ]], 404);
+        }
+        return response()->json(['data' => $question,
+            'msg' => [
+                'summary' => 'Pregunta',
+                'detail' => 'Se actualizo correctamente la pregunta',
+                'code' => '201',
+            ]], 201);
     }
 
     public function destroy($id)
@@ -96,7 +154,21 @@ class QuestionController extends Controller
         $question->state_id = '3';
         $question->save();
 
-        return response()->json( ['data' => $question], 201);
+        if (!$question) {
+            return response()->json([
+                'data' => null,
+                'msg' => [
+                    'summary' => 'Pregunta no eliminada',
+                    'detail' => 'Intenta de nuevo',
+                    'code' => '404'
+                ]], 404);
+        }
+        return response()->json(['data' => $question,
+            'msg' => [
+                'summary' => 'Pregunta',
+                'detail' => 'Se elimino correctamente la pregunta',
+                'code' => '201',
+            ]], 201);
     }
 
 }
