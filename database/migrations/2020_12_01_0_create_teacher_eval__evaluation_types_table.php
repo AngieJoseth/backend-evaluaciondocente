@@ -12,6 +12,7 @@ class CreateTeacherEvalEvaluationTypesTable extends Migration
             $table->id();
             $table->foreignId('parent_id')->nullable()->comment('Hace tabla recursiva por eso hace referencia a una misma tabla')->constrained('evaluation_types');
             $table->foreignId('state_id')->constrained('ignug.states');
+            $table->foreignId('status_id')->constrained('ignug.catalogues');
             $table->string('name')->unique()->comment('Descripcion Tipo Evaluacion');
             $table->string('code')->unique()->comment('Codigo Tipo Evaluacion');
             $table->integer('percentage')->nullable()->comment('Porcentaje cada Tipo Evaluacion');;

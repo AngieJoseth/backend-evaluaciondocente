@@ -16,13 +16,43 @@ class AnswerController extends Controller
         $state = State::where('code','1')->first();
         $answers = Answer::with('status')->where('state_id',$state->id)->get();
 
-        return response()->json( ['data'=>$answers], 200);
+        if (sizeof($answers)=== 0) {
+            return response()->json([
+                'data' => null,
+                'msg' => [
+                    'summary' => 'Respuestas no encontradas',
+                    'detail' => 'Intenta de nuevo',
+                    'code' => '404'
+                ]], 404);
+        }
+        return response()->json(['data' => $answers,
+            'msg' => [
+                'summary' => 'Respuestas',
+                'detail' => 'Se consultó correctamente respuestas',
+                'code' => '200',
+            ]], 200);
+
     }
 
     public function show($id)
     {
         $answer = Answer::findOrFail($id);
-        return response()->json(['data'=>$answer], 200);
+        
+        if (!$answer) {
+            return response()->json([
+                'data' => null,
+                'msg' => [
+                    'summary' => 'Respuesta no encontrada',
+                    'detail' => 'Intenta de nuevo',
+                    'code' => '404'
+                ]], 404);
+        }
+        return response()->json(['data' => $answer,
+            'msg' => [
+                'summary' => 'Respuesta',
+                'detail' => 'Se consultó correctamente respuesta',
+                'code' => '200',
+            ]], 200);
     }  
 
     public function store(Request $request){
@@ -44,7 +74,22 @@ class AnswerController extends Controller
         $answer->status()->associate($status);
         $answer->save();
 
-        return response()->json( ['data'=>$answer], 201);
+        if (!$answer) {
+            return response()->json([
+                'data' => null,
+                'msg' => [
+                    'summary' => 'Respuestas no encontradas',
+                    'detail' => 'Intenta de nuevo',
+                    'code' => '404'
+                ]], 404);
+        }
+        return response()->json(['data' => $answer,
+            'msg' => [
+                'summary' => 'Respuestas',
+                'detail' => 'Se creó correctamente las respuestas',
+                'code' => '201',
+            ]], 201);
+
     }
 
     public function update(Request $request, $id)
@@ -66,7 +111,21 @@ class AnswerController extends Controller
         
         $answer->save();
         
-        return response()->json( ['data'=>$answer], 201);
+        if (!$answer) {
+            return response()->json([
+                'data' => null,
+                'msg' => [
+                    'summary' => 'Respuesta no encontrada',
+                    'detail' => 'Intenta de nuevo',
+                    'code' => '404'
+                ]], 404);
+        }
+        return response()->json(['data' => $answer,
+            'msg' => [
+                'summary' => 'Respuesta',
+                'detail' => 'Se actualizó correctamente la respuesta',
+                'code' => '201',
+            ]], 201);
     }
 
     public function destroy($id)
@@ -76,7 +135,21 @@ class AnswerController extends Controller
         $answer->state_id = '3';
         $answer->save();
 
-        return response()->json( ['data'=>$answer], 201);
+        if (!$answer) {
+            return response()->json([
+                'data' => null,
+                'msg' => [
+                    'summary' => 'Respuesta no encontrada',
+                    'detail' => 'Intenta de nuevo',
+                    'code' => '404'
+                ]], 404);
+        }
+        return response()->json(['data' => $answer,
+            'msg' => [
+                'summary' => 'Respuesta',
+                'detail' => 'Se eliminó correctamente la respuesta',
+                'code' => '201',
+            ]], 201);
     }
 
 

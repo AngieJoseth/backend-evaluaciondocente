@@ -12,7 +12,8 @@ class State extends Model implements Auditable
     use HasFactory;
 
     protected $connection = 'pgsql-ignug';
-
+    const ACTIVE = '1';
+    const DELETED = '0';
     public $timestamps = false;
 
     protected $fillable = [

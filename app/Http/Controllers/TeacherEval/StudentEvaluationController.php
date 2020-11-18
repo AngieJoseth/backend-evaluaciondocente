@@ -44,11 +44,26 @@ class StudentEvaluationController extends Controller
 
         }
 
+    //     return response()->json([
+    //     'data' => [
+    //         'studentResult' => $studentResult
+    //     ]
+    // ], 201);
+    if (!$studentResult) {
         return response()->json([
-        'data' => [
-            'studentResult' => $studentResult
-        ]
-    ], 201);
+            'data' => null,
+            'msg' => [
+                'summary' => 'Creado',
+                'detail' => 'Intenta de nuevo',
+                'code' => '404'
+            ]], 404);
+    }
+    return response()->json(['data' => $studentResult,
+        'msg' => [
+            'summary' => 'Tipos de Evaluación',
+            'detail' => 'Se consulto correctamente tipos',
+            'code' => '200',
+        ]], 200);
     }
     public function update(Request $request){
         return $request;
