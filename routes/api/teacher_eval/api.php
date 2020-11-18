@@ -8,6 +8,7 @@ use App\Http\Controllers\TeacherEval\SelfEvaluationController;
 use App\Http\Controllers\TeacherEval\EvaluationController;
 use App\Http\Controllers\TeacherEval\AnswerController;
 use App\Http\Controllers\TeacherEval\CatalogueController;
+use App\Http\Controllers\TeacherEval\QuestionByEvaluationTypeController;
 
 
 
@@ -25,6 +26,7 @@ Route::post('pair_evaluations/teachers',[PairEvaluationController::class,'storeT
 Route::post('pair_evaluations/authorities',[PairEvaluationController::class,'storeAuthorityEvalutor']);
 
 Route::get('catalogues', [CatalogueController::class, 'index']);
+Route::get('types_questions/self_evaluations', [QuestionByEvaluationTypeController::class, 'selfEvaluation']);
 
 
 

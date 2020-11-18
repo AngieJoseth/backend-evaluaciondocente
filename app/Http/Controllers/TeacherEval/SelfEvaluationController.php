@@ -16,7 +16,23 @@ use App\Models\TeacherEval\Evaluation;
 class SelfEvaluationController extends Controller
 {
     public function index(){
-        return SelfResult::all();
+        $selfResult = SelfResult::all();
+
+        if (sizeof($selfResult)=== 0) {
+            return response()->json([
+                'data' => null,
+                'msg' => [
+                    'summary' => 'AutoEvaluaciones no encontradas',
+                    'detail' => 'Intenta de nuevo',
+                    'code' => '404'
+                ]], 404);
+        }
+        return response()->json(['data' => $selfResult,
+            'msg' => [
+                'summary' => 'AutoEvaluaciones',
+                'detail' => 'Se consultó correctamente AutoEvaluaciones',
+                'code' => '200',
+            ]], 200);
     } 
 
     public function store(Request $request){
@@ -39,12 +55,21 @@ class SelfEvaluationController extends Controller
         }
         $this->getResultSelf($dataTeacher['id'],$dataAnswerQuestions );
 
-           
-        return response()->json([
-        'data' => [
-            'selfResult' => $selfResult,
-        ]
-    ], 201);
+        if (!$selfResult) {
+            return response()->json([
+                'data' => null,
+                'msg' => [
+                    'summary' => 'AutoEvaluaciones no encontradas',
+                    'detail' => 'Intenta de nuevo',
+                    'code' => '404'
+                ]], 404);
+        }
+        return response()->json(['data' => $selfResult,
+            'msg' => [
+                'summary' => 'AutoEvaluaciones',
+                'detail' => 'Se creó correctamente las autoEvaluaciones',
+                'code' => '201',
+            ]], 201);
     }
 
     //Metodo para realizar los calculos y sacar la nota de docencia y gestion con el porcentaje aplicado.
