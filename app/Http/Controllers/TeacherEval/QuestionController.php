@@ -82,7 +82,8 @@ class QuestionController extends Controller
         $question->save();
 
         $answersIds = array();
-        $answers = Answer::where('status_id', 11)
+        $catalogueStatus = Catalogue::where('type','STATUS')->Where('code','1')->first();
+        $answers = Answer::where('status_id', $catalogueStatus->id)
         ->get();
         foreach ($answers as $answer) {
             array_push($answersIds,$answer->id);
