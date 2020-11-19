@@ -19,7 +19,7 @@ class QuestionController extends Controller
         $state = State::where('code','1')->first();
         $questions = Question::with('status', 'type', 'evaluationType')->where('state_id',$state->id)->get();
 
-        if (!$questions) {
+        if (sizeof($evaluations)=== 0) {
             return response()->json([
                 'data' => null,
                 'msg' => [
