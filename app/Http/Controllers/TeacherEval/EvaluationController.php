@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Ignug\State;
 use App\Models\Ignug\Teacher;
 use App\Models\Ignug\Catalogue;
+use App\Models\Ignug\SchoolPeriod;
 use App\Models\TeacherEval\Evaluation;
 use App\Models\TeacherEval\EvaluationType;
 use App\Models\TeacherEval\DetailEvaluation;
@@ -73,6 +74,7 @@ class EvaluationController extends Controller
         $evaluation->teacher()->associate($teacher);
         $evaluation->evaluationType()->associate($evaluationType);
         $evaluation->state()->associate(State::where('code', '1')->first());
+        $evaluation->schoolPeriod()->associate(SchoolPeriod::where('code', '1')->first());
         $evaluation->status()->associate($status);
         $evaluation->save();
 
@@ -110,6 +112,7 @@ class EvaluationController extends Controller
         $evaluation->teacher()->associate($teacher);
         $evaluation->evaluationType()->associate($evaluationType);
         $evaluation->status()->associate($status);
+        $evaluation->schoolPeriod()->associate($schoolPeriod);
         $evaluation->save();
 
         foreach($dataEvaluators as $evaluator)
