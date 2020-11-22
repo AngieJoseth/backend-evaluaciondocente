@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Ignug\State;
 use App\Models\Ignug\Teacher;
 use App\Models\Ignug\Catalogue;
+use App\Models\Ignug\SchoolPeriod;
 use App\Models\TeacherEval\Evaluation;
 use App\Models\TeacherEval\EvaluationType;
 use App\Models\TeacherEval\DetailEvaluation;
@@ -16,7 +17,7 @@ class EvaluationController extends Controller
     public function index()
     {
         $state = State::where('code','1')->first();
-        $evaluations = Evaluation::with('teacher','evaluationType','status','detailEvaluations')
+        $evaluations = Evaluation::with('teacher','evaluationType','status','detailEvaluations', 'schoolPeriod')
         ->where('state_id',$state->id)->get();
 
         if (sizeof($evaluations)=== 0) {
@@ -73,6 +74,7 @@ class EvaluationController extends Controller
         $evaluation->teacher()->associate($teacher);
         $evaluation->evaluationType()->associate($evaluationType);
         $evaluation->state()->associate(State::where('code', '1')->first());
+        $evaluation->schoolPeriod()->associate(SchoolPeriod::where('code', '1')->first());
         $evaluation->status()->associate($status);
         $evaluation->save();
 
