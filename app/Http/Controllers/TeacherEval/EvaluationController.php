@@ -112,7 +112,6 @@ class EvaluationController extends Controller
         $evaluation->teacher()->associate($teacher);
         $evaluation->evaluationType()->associate($evaluationType);
         $evaluation->status()->associate($status);
-        $evaluation->schoolPeriod()->associate($schoolPeriod);
         $evaluation->save();
 
         foreach($dataEvaluators as $evaluator)
