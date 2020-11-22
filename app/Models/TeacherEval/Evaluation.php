@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Ignug\State;
 use App\Models\Ignug\Teacher;
 use App\Models\Ignug\Catalogue;
+use App\Models\Ignug\SchoolPeriod;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class Evaluation extends Model implements Auditable
@@ -42,6 +43,10 @@ class Evaluation extends Model implements Auditable
     public function status()
     {
         return $this->belongsTo(Catalogue::class, "status_id");
+    }
+    public function schoolPeriod()
+    {
+        return $this->belongsTo(SchoolPeriod::class);
     }
 
 }
