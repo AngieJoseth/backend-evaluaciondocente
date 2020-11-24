@@ -19,7 +19,7 @@ class QuestionController extends Controller
         $state = State::where('code','1')->first();
         $questions = Question::with('status', 'type', 'evaluationType')->where('state_id',$state->id)->get();
 
-        if (!$questions) {
+        if (sizeof($questions)=== 0) {
             return response()->json([
                 'data' => null,
                 'msg' => [
@@ -82,7 +82,8 @@ class QuestionController extends Controller
         $question->save();
 
         $answersIds = array();
-        $answers = Answer::where('status_id', 11)
+        $catalogueStatus = Catalogue::where('type','STATUS')->Where('code','1')->first();
+        $answers = Answer::where('status_id', $catalogueStatus->id)
         ->get();
         foreach ($answers as $answer) {
             array_push($answersIds,$answer->id);

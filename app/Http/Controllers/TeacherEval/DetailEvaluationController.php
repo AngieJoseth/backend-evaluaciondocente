@@ -14,97 +14,86 @@ class DetailEvaluationController extends Controller
 {
     public function index()
     {
-        $state = State::where('code', '1')->first();
-        $detailEvaluations = DetailEvaluation::where('state_id', $state->id)->paginate(10000);
-        return response()->json($detailEvaluations, 200);
+        $state = State::where('code','1')->first();
+        $detailEvaluations = DetailEvaluation::with('evaluation','state')
+        ->where('state_id',$state->id)->get();
+
+        if (sizeof($detailEvaluations)=== 0) {
+            return response()->json([
+                'data' => null,
+                'msg' => [
+                    'summary' => 'Detalle evaluación no encontradas',
+                    'detail' => 'Intenta de nuevo',
+                    'code' => '404'
+                ]], 404);
+        }
+        return response()->json(['data' => $detailEvaluations,
+            'msg' => [
+                'summary' => 'Detalle evaluaciones',
+                'detail' => 'Se consulto correctamente detalle evaluaciones',
+                'code' => '200',
+            ]], 200);
     }
 
     public function show($id)
     {
         $detailEvaluation = DetailEvaluation::findOrFail($id);
-        return response()->json(['data' => $detailEvaluation], 200);
+        if (!$detailEvaluation) {
+            return response()->json([
+                'data' => null,
+                'msg' => [
+                    'summary' => 'Detalle evaluación no encontrada',
+                    'detail' => 'Intenta de nuevo',
+                    'code' => '404'
+                ]], 404);
+        }
+        return response()->json(['data' => $detailEvaluation,
+            'msg' => [
+                'summary' => 'Detalle evaluación',
+                'detail' => 'Se consulto correctamente detalle evaluación',
+                'code' => '200',
+            ]], 200);
     }
 
     public function store(Request $request)
     {
         $data = $request->json()->all();
-
-        $dataEvaluationType = $data['evaluation_type'];
-        $dataTeacher = $data['teacher'];
+        $dataEvaluation = $data['evaluation'];
         $dataEvaluators = $data['evaluators'];
-
-        $evaluation = new Evaluation();
-
-        $state = State::where('code', '1')->first();
-        $teacher = Teacher::findOrFail($dataTeacher['id']);
-        $evaluationType = EvaluationType::findOrFail($dataEvaluationType['id']);
-
-        $evaluation->state()->associate($state);
-        $evaluation->teacher()->associate($teacher);
-        $evaluation->evaluationType()->associate($evaluationType);
-        $evaluation->save();
 
         foreach ($dataEvaluators as $evaluator) {
             $detailEvaluation = new DetailEvaluation;
-            $detailEvaluation->state()->associate($state);
+            $detailEvaluation->state()->associate(State::where('code', '1')->first());
             $detailEvaluation->detailEvaluationable()->associate(Teacher::findOrFail($evaluator['id']));
-            $detailEvaluation->evaluation()->associate($evaluation);
+            $detailEvaluation->evaluation()->associate(Evaluation::findOrFail($dataEvaluation['id']));
             $detailEvaluation->save();
         }
-
-        return response()->json(['data' => $evaluation], 201);
+        
+        if (!$detailEvaluation) {
+            return response()->json([
+                'data' => null,
+                'msg' => [
+                    'summary' => 'Detalle evaluación no creada',
+                    'detail' => 'Intenta de nuevo',
+                    'code' => '404'
+                ]], 404);
+        }
+        return response()->json(['data' => $detailEvaluation,
+            'msg' => [
+                'summary' => 'Detalle evaluación',
+                'detail' => 'Se creo correctamente detalle evaluación',
+                'code' => '201',
+            ]], 201);
     }
 
     public function update(Request $request, $id)
     {
-        $data = $request->json()->all();
-
-        $dataEvaluationType = $data['evaluation_type'];
-        $dataTeacher = $data['teacher'];
-        $dataEvaluators = $data['evaluators'];
-        $dataState = $data['state'];
-
-        $evaluation = Evaluation::findOrFail($id);
-        $state = State::findOrFail($dataState['id']);
-        $teacher = Teacher::findOrFail($dataTeacher['id']);
-        $evaluationType = EvaluationType::findOrFail($dataEvaluationType['id']);
-
-        $evaluation->state()->associate($state);
-        $evaluation->teacher()->associate($teacher);
-        $evaluation->evaluationType()->associate($evaluationType);
-        $evaluation->save();
-
-        foreach ($dataEvaluators as $evaluator) {
-            $detailEvaluation = DetailEvaluation::where('evaluation_id', $id)->first();
-            $detailEvaluation->detailEvaluationable()->associate(Teacher::findOrFail($evaluator['id']));
-            $detailEvaluation->save();
-        }
-
-        return response()->json([
-            'data' => [
-                'evaluation' => $detailEvaluation
-            ]
-        ], 201);
+        //
     }
 
     public function destroy($id)
     {
-        $evaluation = Evaluation::findOrFail($id);
-
-        $evaluation->state_id = '3';
-        $evaluation->save();
-
-        $detailEvaluations = DetailEvaluation::where('evaluation_id', $id)->get();
-        foreach ($detailEvaluations as $detailEvaluation) {
-            $detailEvaluation->state_id = '3';
-            $detailEvaluation->save();
-        }
-
-        return response()->json([
-            'data' => [
-                'detail_evaluation' => $detailEvaluation
-            ]
-        ], 201);
+       //
     }
 
 }
