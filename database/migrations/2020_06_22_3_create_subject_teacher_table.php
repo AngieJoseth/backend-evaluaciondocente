@@ -12,6 +12,7 @@ class CreateSubjectTeacherTable extends Migration
             $table->id();
             $table->foreignId('teacher_id');
             $table->foreignId('subject_id');
+            $table->foreignId('school_period_id');
             $table->timestamps();
         });
     }

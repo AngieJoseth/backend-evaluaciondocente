@@ -24,5 +24,9 @@ class SubjectTeacher extends Model
     public function studentResults(){
         return $this->hasMany(StudentResult::class);
     }
+    public function schoolPeriod()
+    {
+        return $this->belongsTo(SchoolPeriod::class);
+    }
 
 }

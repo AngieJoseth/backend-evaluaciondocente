@@ -55,6 +55,7 @@ class PairEvaluationController extends Controller
 
             $detailEvaluationResult = array_sum($values)*$percentage/100;
         }
+
         $this->updateDetailEvaluation($detailEvaluation, $detailEvaluationResult);
         return response()->json([
             'data' => [

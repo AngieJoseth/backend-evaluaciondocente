@@ -34,4 +34,9 @@ class Teacher extends Model implements Auditable
     {
         return $this->morphMany(Image::class, 'imageable');
     }
+    
+    public function careers()
+    {
+        return $this->morphToMany(Career::class, 'careerable');
+    }
 }

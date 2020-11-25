@@ -13,6 +13,8 @@ class CreateTeacherEvalEvaluationsTable extends Migration
             $table->foreignId('teacher_id')->comment('Informacion Profesor')->constrained('ignug.teachers');
             $table->foreignId('evaluation_type_id')->comment('pares, autoevaluacion,estudiante');
             $table->foreignId('state_id')->comment('Activo o Inactivo')->constrained('ignug.states');
+            $table->foreignId('status_id')->constrained('ignug.catalogues'); 
+            $table->foreignId('school_period_id');
             $table->double('result',5,2)->nullable()->comment('Total Evaluacion');
             $table->timestamps();
         });
