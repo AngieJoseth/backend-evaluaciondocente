@@ -35,4 +35,8 @@ class SchoolPeriod extends Model
     {
         return $this->belongsTo(Catalogue::class, "status_id");
     }
+    public function evaluation()
+    {
+        return $this->hasMany(Evaluation::class);
+    }
 }

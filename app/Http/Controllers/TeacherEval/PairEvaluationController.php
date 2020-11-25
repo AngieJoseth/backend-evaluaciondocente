@@ -10,6 +10,7 @@ use App\Models\TeacherEval\EvaluationType;
 use App\Models\TeacherEval\DetailEvaluation;
 use App\Models\TeacherEval\AnswerQuestion;
 use App\Models\Ignug\State;
+use App\Models\Ignug\Authority;
 
 class PairEvaluationController extends Controller
 {
@@ -62,6 +63,43 @@ class PairEvaluationController extends Controller
                 'pairResult' => $pairResult
         ]]);
     }
+
+//AuthorityEvalutor
+
+public function storeAuthorityEvalutor(Request $request)
+{
+    $data = $request->json()->all();
+
+    $dataAuthority = $data['authority'];
+    $dataDetailEvaluation = $data['detail_evaluation'];
+    $dataAnswerQuestions = $data['answer_questions'];
+    $detailEvaluation = DetailEvaluation::findOrFail($dataDetailEvaluation['id']);
+    $values = array();
+    foreach($dataAnswerQuestions as $answerQuestion)
+    {
+        $pairResult = new PairResult;
+        $pairResult->answerQuestion()->associate(AnswerQuestion::findOrFail($answerQuestion['id']));
+        $pairResult->detailEvaluation()->associate($detailEvaluation);
+        $pairResult->authority()->associate($dataAuthority);
+        $pairResult->state()->associate(State::where('code', '1')->first());
+        $pairResult->save();
+
+        $valueQuestion = AnswerQuestion::where('id',$answerQuestion['id'])->first(); 
+        array_push($values, $valueQuestion->answer()->first()->value);
+
+        $questionEvaluation_type =  $valueQuestion->question()->first()->evaluation_type_id; 
+        $evaluationType = EvaluationType::where('id', $questionEvaluation_type)->first(); 
+        $percentage = $evaluationType->parent()->first()->percentage;
+
+        $detailEvaluationResult = array_sum($values)*$percentage/100;
+    }
+    
+    $this->updateDetailEvaluation($detailEvaluation, $detailEvaluationResult);
+    return response()->json([
+        'data' => [
+            'pairResult' => $pairResult
+    ]]);
+}
 
     public function updateDetailEvaluation($detailEvaluation, $detailEvaluationResult)
     {

@@ -23,7 +23,8 @@ Route::group(['prefix' => 'images'], function () {
     Route::post('avatars', [ImageController::class, 'createAvatar']);
 });
 
-Route::group(['prefix' => 'teachers'], function () {
+/*Route::group(['prefix' => 'teachers'], function () {
     Route::post('upload_image', [TeacherController::class, 'uploadImage']);
-});
+});*/
+Route::apiResource('teachers', TeacherController::class);
 

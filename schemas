@@ -6,6 +6,7 @@
             drop schema if exists web cascade;
             drop schema if exists teacher_eval cascade;
             drop schema if exists cecy cascade;
+            drop schema if exists community cascade;
 
 
             create schema authentication;
@@ -15,4 +16,5 @@
             create schema web;
             create schema teacher_eval;
             create schema cecy;
+            create schema community;
 
