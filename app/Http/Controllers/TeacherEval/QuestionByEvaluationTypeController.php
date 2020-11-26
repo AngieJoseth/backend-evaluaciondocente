@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\TeacherEval\Question;
 use App\Models\TeacherEval\EvaluationType;
+use App\Models\Ignug\Catalogue;
 
 class QuestionByEvaluationTypeController extends Controller
 {
@@ -13,9 +14,16 @@ class QuestionByEvaluationTypeController extends Controller
         $evaluationTypeDocencia = EvaluationType::where('code','3')->first();
         $evaluationTypeGestion = EvaluationType::where('code','4')->first();
 
-        $question = Question::with('answers')
-        ->where('evaluation_type_id',$evaluationTypeDocencia->id)
-        ->orWhere('evaluation_type_id',$evaluationTypeGestion->id)
+        $catalogueStatus = Catalogue::where('type','STATUS')->Where('code','1')->first();
+
+        $question = Question::with(['evaluationType','answers' => function ($query) use($catalogueStatus){
+            $query->where('status_id', $catalogueStatus->id);
+        }])
+        ->where('status_id',$catalogueStatus->id)
+        ->where(function ($query) use($evaluationTypeDocencia,$evaluationTypeGestion){
+            $query->where('evaluation_type_id',$evaluationTypeDocencia->id)
+                  ->orWhere('evaluation_type_id',$evaluationTypeGestion->id);
+        })
         ->get();
 
         if (sizeof($question)=== 0) {

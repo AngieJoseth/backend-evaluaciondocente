@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Ignug\State;
 use App\Models\Ignug\Teacher;
+use App\Models\Ignug\Catalogue;
+use App\Models\Ignug\SchoolPeriod;
 use App\Models\TeacherEval\AnswerQuestion;
 use App\Models\TeacherEval\Answer;
 use App\Models\TeacherEval\Question;
@@ -30,7 +32,7 @@ class SelfEvaluationController extends Controller
         return response()->json(['data' => $selfResult,
             'msg' => [
                 'summary' => 'AutoEvaluaciones',
-                'detail' => 'Se consultó correctamente AutoEvaluaciones',
+                'detail' => 'Se consultó correctamente las autoEvaluaciones',
                 'code' => '200',
             ]], 200);
     } 
@@ -41,25 +43,40 @@ class SelfEvaluationController extends Controller
         
         $dataTeacher = $data['teacher'];
         $dataAnswerQuestions = $data['answer_questions'];
-        $teacher = Teacher::findOrFail($dataTeacher['id']);
+        $teacher = Teacher::where('user_id',$dataTeacher['id'])->first();
         $state = State::where('code', '1')->first();
+        
 
         foreach ($dataAnswerQuestions as $eachAnswerQuestion) {
+            
             $selfResult = new SelfResult();
-            $answerQuestion = AnswerQuestion::findOrFail($eachAnswerQuestion['id']);
-            $selfResult->state()->associate($state);
-            $selfResult->teacher()->associate($teacher);
-            $selfResult->answerQuestion()->associate($answerQuestion);
 
-            $selfResult->save();
+            //Tomo el id de evaluationType para realizar validacion si ya existe el teacher y tipo de evaluacion en evaluacion.
+            $evaluationTypeId = AnswerQuestion::where('id',$eachAnswerQuestion['id'])->first()->question()->first()->evaluation_type_id;
+            $teacherHasEvaluation = Evaluation::where('teacher_id',$teacher->id)
+            ->where('evaluation_type_id',$evaluationTypeId)
+            ->first();
+
+            if(!$teacherHasEvaluation){
+            $answerQuestion = AnswerQuestion::findOrFail($eachAnswerQuestion['id']);
+                 $selfResult->state()->associate($state);
+                 $selfResult->teacher()->associate($teacher);
+                 $selfResult->answerQuestion()->associate($answerQuestion);
+                 $selfResult->save();
+             }else{
+                $selfResult = null;
+             }
+            
         }
-        $this->getResultSelf($dataTeacher['id'],$dataAnswerQuestions );
+        if(!$teacherHasEvaluation){
+            $this->getResultSelf($teacher->id,$dataAnswerQuestions );
+        }
 
         if (!$selfResult) {
             return response()->json([
                 'data' => null,
                 'msg' => [
-                    'summary' => 'AutoEvaluaciones no encontradas',
+                    'summary' => 'AutoEvaluación no creada',
                     'detail' => 'Intenta de nuevo',
                     'code' => '404'
                 ]], 404);
@@ -93,18 +110,23 @@ class SelfEvaluationController extends Controller
     //Metodo para guardar en la tabla evaluations.
     public function createEvaluation( $teacherId, $evaluationTypeId, $resultEvaluation ){
 
-        $evaluation = new Evaluation();
+            $evaluation = new Evaluation();
+    
+            $evaluation->result = $resultEvaluation;
 
-        $evaluation->result = $resultEvaluation;
-        $state = State::where('code','1')->first();
-        $teacher = Teacher::findOrFail($teacherId);
-        $evaluationType = EvaluationType::findOrFail($evaluationTypeId);
+            $state = State::where('code','1')->first();
+            $catalogueStatus = Catalogue::where('type','STATUS')->Where('code','1')->first();
+            $teacher = Teacher::findOrFail($teacherId);
+            $evaluationType = EvaluationType::findOrFail($evaluationTypeId);
+            $schoolPeriod = SchoolPeriod::where('code',1)->first();
 
-        $evaluation->state()->associate($state);
-        $evaluation->teacher()->associate($teacher);
-        $evaluation->evaluationType ()->associate($evaluationType);
-
-        $evaluation->save();
+            $evaluation->state()->associate($state);
+            $evaluation->status()->associate($catalogueStatus);
+            $evaluation->teacher()->associate($teacher);
+            $evaluation->evaluationType()->associate($evaluationType);
+            $evaluation->schoolPeriod()->associate($schoolPeriod);
+    
+            $evaluation->save();
     }
 
     public function update(Request $request){
