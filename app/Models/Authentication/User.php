@@ -13,6 +13,8 @@ use App\Models\JobBoard\Company;
 use App\Models\JobBoard\Professional;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Traits\StatusTrait;
+use App\Traits\StatusActiveTrait;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -22,7 +24,8 @@ class User extends Authenticatable implements Auditable
 {
     use HasApiTokens, Notifiable, HasFactory;
     use \OwenIt\Auditing\Auditable;
-
+    use StatusTrait;
+    use StatusActiveTrait;
     protected $connection = 'pgsql-authentication';
 
     const TYPE_AVATARS = 'AVATARS';

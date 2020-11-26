@@ -22,6 +22,7 @@ class CreateSchoolPeriodsTable extends Migration
             $table->date('especial_start_date');
             $table->date('especial_end_date');
             $table->foreignId('state_id');
+            $table->foreignId('status_id');
             $table->timestamps();
         });
     }
