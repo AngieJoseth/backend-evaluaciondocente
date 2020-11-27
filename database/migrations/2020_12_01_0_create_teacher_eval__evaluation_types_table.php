@@ -15,8 +15,8 @@ class CreateTeacherEvalEvaluationTypesTable extends Migration
             $table->foreignId('status_id')->constrained('ignug.catalogues');
             $table->string('name')->unique()->comment('Descripcion Tipo Evaluacion');
             $table->string('code')->unique()->comment('Codigo Tipo Evaluacion');
-            $table->integer('percentage')->nullable()->comment('Porcentaje cada Tipo Evaluacion');;
-            $table->integer('global_percentage')->nullable()->comment('Este porcentaje es para calculos finales.');
+            $table->double('percentage')->nullable()->comment('Porcentaje cada Tipo Evaluacion');;
+            $table->double('global_percentage')->nullable()->comment('Este porcentaje es para calculos finales.');
             $table->timestamps();
 
         });
