@@ -4,6 +4,7 @@ namespace App\Http\Controllers\TeacherEval;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Ignug\State;
 use App\Models\TeacherEval\Question;
 use App\Models\TeacherEval\EvaluationType;
 use App\Models\Ignug\Catalogue;
@@ -67,5 +68,38 @@ class QuestionByEvaluationTypeController extends Controller
                 'detail' => 'Se consultó correctamente Preguntas',
                 'code' => '200',
             ]], 200);
-    } 
+    }
+    
+    public function pairEvaluation()
+    {
+        $catalogues = json_decode(file_get_contents(storage_path(). '/catalogues.json'), true);
+
+        $evaluationTypeDocencia = EvaluationType::where('code', '7')->first();
+        $evaluationTypeGestion = EvaluationType::where('code', '8')->first();
+        $state = State::where('code', $catalogues['state']['type']['active'])->first();
+
+        $question = Question::with(['answers' => function ($query) {
+            $query->where('state_id', 1);
+        }])
+            ->where('evaluation_type_id', $evaluationTypeDocencia->id)
+            ->orWhere('evaluation_type_id', $evaluationTypeGestion->id)
+            ->where('state_id', $state->id)
+            ->get();
+
+        if (sizeof($question) === 0) {
+            return response()->json([
+                'data' => null,
+                'msg' => [
+                    'summary' => 'Preguntas no encontradas',
+                    'detail' => 'Intenta de nuevo',
+                    'code' => '404',
+                ]], 404);
+        }
+        return response()->json(['data' => $question,
+            'msg' => [
+                'summary' => 'Preguntas',
+                'detail' => 'Se consultó correctamente Preguntas',
+                'code' => '200',
+            ]], 200);
+    }
 }

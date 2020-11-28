@@ -12,27 +12,33 @@ use App\Models\TeacherEval\Evaluation;
 
 class DetailEvaluationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $state = State::where('code','1')->first();
-        $detailEvaluations = DetailEvaluation::with('evaluation','state')
-        ->where('state_id',$state->id)->get();
+        $catalogues = json_decode(file_get_contents(storage_path(). '/catalogues.json'), true);
+        
+        $detailEvaluations = DetailEvaluation::where('detail_evaluationable_id',$request->detail_evaluationable_id)->where('result',null)->get();
+        if(sizeof( $detailEvaluations)!==0){
+            $detailEvaluations = DetailEvaluation::with('evaluation')
+            ->where('detail_evaluationable_id',$request->detail_evaluationable_id)
+            ->where('state_id', State::where('code', $catalogues['state']['type']['active'])
+            ->first()->id)->get();
 
-        if (sizeof($detailEvaluations)=== 0) {
-            return response()->json([
-                'data' => null,
+            if (sizeof($detailEvaluations)=== 0) {
+                return response()->json([
+                    'data' => null,
+                    'msg' => [
+                        'summary' => 'Detalle evaluación no encontradas',
+                        'detail' => 'Intenta de nuevo',
+                        'code' => '404'
+                    ]], 404);
+            }
+            return response()->json(['data' => $detailEvaluations,
                 'msg' => [
-                    'summary' => 'Detalle evaluación no encontradas',
-                    'detail' => 'Intenta de nuevo',
-                    'code' => '404'
-                ]], 404);
+                    'summary' => 'Detalle evaluaciones',
+                    'detail' => 'Se consulto correctamente detalle evaluaciones',
+                    'code' => '200',
+                ]], 200);
         }
-        return response()->json(['data' => $detailEvaluations,
-            'msg' => [
-                'summary' => 'Detalle evaluaciones',
-                'detail' => 'Se consulto correctamente detalle evaluaciones',
-                'code' => '200',
-            ]], 200);
     }
 
     public function show($id)
@@ -57,13 +63,14 @@ class DetailEvaluationController extends Controller
 
     public function store(Request $request)
     {
+        $catalogues = json_decode(file_get_contents(storage_path(). '/catalogues.json'), true);
         $data = $request->json()->all();
         $dataEvaluation = $data['evaluation'];
         $dataEvaluators = $data['evaluators'];
 
         foreach ($dataEvaluators as $evaluator) {
             $detailEvaluation = new DetailEvaluation;
-            $detailEvaluation->state()->associate(State::where('code', '1')->first());
+            $detailEvaluation->state()->associate(State::firstWhere('code', $catalogues['state']['type']['active'])->first());
             $detailEvaluation->detailEvaluationable()->associate(Teacher::findOrFail($evaluator['id']));
             $detailEvaluation->evaluation()->associate(Evaluation::findOrFail($dataEvaluation['id']));
             $detailEvaluation->save();
@@ -85,15 +92,4 @@ class DetailEvaluationController extends Controller
                 'code' => '201',
             ]], 201);
     }
-
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    public function destroy($id)
-    {
-       //
-    }
-
 }
