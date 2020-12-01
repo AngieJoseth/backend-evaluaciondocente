@@ -4,12 +4,8 @@ namespace App\Http\Controllers\TeacherEval;
 
 use App\Http\Controllers\Controller;
 use App\Models\Ignug\State;
-use App\Models\Ignug\Teacher;
-use App\Models\Ignug\Authority;
 use App\Models\TeacherEval\AnswerQuestion;
 use App\Models\TeacherEval\DetailEvaluation;
-use App\Models\TeacherEval\Evaluation;
-use App\Models\TeacherEval\EvaluationType;
 use App\Models\TeacherEval\PairResult;
 use Illuminate\Http\Request;
 
@@ -60,10 +56,11 @@ class PairEvaluationController extends Controller
     public function storeTeacherEvalutor(Request $request)
     {
         $catalogues = json_decode(file_get_contents(storage_path() . '/catalogues.json'), true);
-        
+
         $data = $request->json()->all();
 
         $dataDetailEvaluation = $data['detail_evaluation'];
+
         $dataAnswerQuestions = $data['answer_questions'];
         $detailEvaluation = DetailEvaluation::findOrFail($dataDetailEvaluation['id']);
 
@@ -82,9 +79,11 @@ class PairEvaluationController extends Controller
 
         }
         if (sizeOf($dataAnswerQuestions) > 0) {
+
             $detailEvaluation->result = $result / sizeOf($dataAnswerQuestions);
             $detailEvaluation->save();
         }
+
         if (!$pairResult) {
             return response()->json([
                 'data' => null,

@@ -188,13 +188,22 @@ class EvaluationController extends Controller
                         ->OrWhere('evaluation_type_id', $evaluationTypeManagement->id);
                 })
                 ->get();
+
             foreach ($evaluations as $evaluation) {
-                $result = 0;
+                $totalResult = 0;
+
                 foreach ($evaluation->detailEvaluations as $detailEvaluation) {
-                    $result += $detailEvaluation->result;
+                    $totalResult += $detailEvaluation->result;
+
                 }
-                $evaluation->result = $result / sizeOf($evaluation->detailEvaluations);
-                $evaluation->save();
+                if ($evaluation->evaluation_type_id === $evaluationTypeManagement->id) {
+                    $evaluation->result = $totalResult / sizeOf($evaluation->detailEvaluations);
+                    $evaluation->save();
+
+                } else if ($evaluation->evaluation_type_id === $evaluationTypeTeaching->id) {
+                    $evaluation->result = $totalResult / sizeOf($evaluation->detailEvaluations);
+                    $evaluation->save();
+                }
             }
         }
 
