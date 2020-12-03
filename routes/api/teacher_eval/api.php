@@ -35,3 +35,5 @@ Route::get('types_questions/pair_evaluations', [QuestionByEvaluationTypeControll
 Route::post('evaluations/student_evaluations',[StudentEvaluationController::class, 'calculateResults']);
 Route::post('evaluations/pair_evaluations',[EvaluationController::class,'updateEvaluationPair']);
 
+Route::post('evaluations/registered_self_evaluations', [EvaluationController::class, 'registeredSelfEvaluation']);
+Route::post('evaluations/teacher_evaluations', [EvaluationController::class, 'teacherEvaluation']);
