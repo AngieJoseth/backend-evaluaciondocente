@@ -11,38 +11,43 @@ use App\Models\Ignug\Catalogue;
 
 class QuestionByEvaluationTypeController extends Controller
 {
-    public function selfEvaluation(){
-        $evaluationTypeDocencia = EvaluationType::where('code','3')->first();
-        $evaluationTypeGestion = EvaluationType::where('code','4')->first();
+    public function selfEvaluation()
+    {
+        $evaluationTypeDocencia = EvaluationType::where('code', '3')->first();
+        $evaluationTypeGestion = EvaluationType::where('code', '4')->first();
 
-        $catalogueStatus = Catalogue::where('type','STATUS')->Where('code','1')->first();
+        $catalogues = json_decode(file_get_contents(storage_path() . "/catalogues.json"), true);
 
-        $question = Question::with(['evaluationType','answers' => function ($query) use($catalogueStatus){
-            $query->where('status_id', $catalogueStatus->id);
+        $status = Catalogue::where('type', 'STATUS')->Where('code', '1')->first();
+        $state = State::firstWhere('code', $catalogues['state']['type']['active']);
+
+        $questions = Question::with(['evaluationType','answers' => function ($query) use ($status,$state) {
+            $query->where('status_id', $status->id)->where('state_id', $state->id);
         }])
-        ->where('status_id',$catalogueStatus->id)
-        ->where(function ($query) use($evaluationTypeDocencia,$evaluationTypeGestion){
-            $query->where('evaluation_type_id',$evaluationTypeDocencia->id)
-                  ->orWhere('evaluation_type_id',$evaluationTypeGestion->id);
+        ->where('status_id', $status->id)
+        ->where('state_id', $state->id)
+        ->where(function ($query) use ($evaluationTypeDocencia,$evaluationTypeGestion) {
+            $query->where('evaluation_type_id', $evaluationTypeDocencia->id)
+                  ->orWhere('evaluation_type_id', $evaluationTypeGestion->id);
         })
         ->get();
 
-        if (sizeof($question)=== 0) {
+        if (sizeof($questions)=== 0) {
             return response()->json([
                 'data' => null,
                 'msg' => [
-                    'summary' => 'Preguntas no encontradas',
+                    'summary' => 'No se han creado preguntas y respuestas para el formulario',
                     'detail' => 'Intenta de nuevo',
                     'code' => '404'
                 ]], 404);
         }
-        return response()->json(['data' => $question,
+        return response()->json(['data' => $questions,
             'msg' => [
-                'summary' => 'Preguntas',
-                'detail' => 'Se consultó correctamente Preguntas',
+                'summary' => 'Formulario',
+                'detail' => 'Se creó correctamente el formulario',
                 'code' => '200',
             ]], 200);
-    } 
+    }
 
     public function studentEvaluation(){
         $evaluationTypeDocencia = EvaluationType::where('code','5')->first();
