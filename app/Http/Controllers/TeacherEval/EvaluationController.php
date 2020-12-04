@@ -152,7 +152,8 @@ class EvaluationController extends Controller
         $evaluation->state_id = '3';
         $evaluation->save();
 
-        $detailEvaluations = DetailEvaluation::firstWhere('evaluation_id', $id)->get();
+        $detailEvaluations = DetailEvaluation::where('evaluation_id', $id)->get();
+
         foreach ($detailEvaluations as $detailEvaluation) {
             $detailEvaluation->state_id = '3';
             $detailEvaluation->save();
@@ -231,27 +232,27 @@ class EvaluationController extends Controller
 
         $catalogues = json_decode(file_get_contents(storage_path() . "/catalogues.json"), true);
 
-        $teacher = Teacher::firstWhere('user_id', 1 /* $request->user_id */); //Es Temporal, viene por un interceptor
-        $schoolPeriod = SchoolPeriod::firstWhere('status_id', 1);//El 1 es Temporal
+        $teacher = Teacher::firstWhere('user_id', 1/* $request->user_id */); //Es Temporal, viene por un interceptor
+        $schoolPeriod = SchoolPeriod::firstWhere('status_id', 1); //El 1 es Temporal
         $status = Catalogue::where('type', 'STATUS')->Where('code', '1')->first();
         $state = State::firstWhere('code', $catalogues['state']['type']['active']);
 
-        $evaluations = Evaluation::where(function ($query) use ($evaluationTypeTeaching,$evaluationTypeManagement) {
+        $evaluations = Evaluation::where(function ($query) use ($evaluationTypeTeaching, $evaluationTypeManagement) {
             $query->where('evaluation_type_id', $evaluationTypeTeaching->id)
-            ->orWhere('evaluation_type_id', $evaluationTypeManagement->id);
+                ->orWhere('evaluation_type_id', $evaluationTypeManagement->id);
         })
-        ->where('teacher_id', $teacher->id)
-        ->where('school_period_id', $schoolPeriod->id)
-        ->where('state_id', $state->id)
-        ->where('status_id', $state->id)
-        ->get();
-        if (sizeof($evaluations)=== 0) {
+            ->where('teacher_id', $teacher->id)
+            ->where('school_period_id', $schoolPeriod->id)
+            ->where('state_id', $state->id)
+            ->where('status_id', $state->id)
+            ->get();
+        if (sizeof($evaluations) === 0) {
             return response()->json([
                 'data' => null,
                 'msg' => [
                     'summary' => 'No hay autoEvaluación registrada',
                     'detail' => 'Intenta de nuevo',
-                    'code' => '404'
+                    'code' => '404',
                 ]], 404);
         }
         return response()->json(['data' => $evaluations,
@@ -265,25 +266,25 @@ class EvaluationController extends Controller
     {
         $catalogues = json_decode(file_get_contents(storage_path() . "/catalogues.json"), true);
 
-        $teacher = Teacher::firstWhere('user_id', 1 /* $request->user_id */); //Es Temporal, viene por un interceptor
-        $schoolPeriod = SchoolPeriod::firstWhere('status_id', 1);//El 1 es Temporal
+        $teacher = Teacher::firstWhere('user_id', 1/* $request->user_id */); //Es Temporal, viene por un interceptor
+        $schoolPeriod = SchoolPeriod::firstWhere('status_id', 1); //El 1 es Temporal
         $status = Catalogue::where('type', 'STATUS')->Where('code', '1')->first();
         $state = State::firstWhere('code', $catalogues['state']['type']['active']);
 
         $evaluations = Evaluation::with('teacher', 'evaluationType', 'status', 'detailEvaluations', 'schoolPeriod')
-        ->where('teacher_id', $teacher->id)
-        ->where('school_period_id', $schoolPeriod->id)
-        ->where('state_id', $state->id)
-        ->where('status_id', $state->id)
-        ->get();
-        
+            ->where('teacher_id', $teacher->id)
+            ->where('school_period_id', $schoolPeriod->id)
+            ->where('state_id', $state->id)
+            ->where('status_id', $state->id)
+            ->get();
+
         if (!$evaluations) {
             return response()->json([
                 'data' => null,
                 'msg' => [
                     'summary' => 'El docente no tiene evaluaciones',
                     'detail' => 'Intenta de nuevo',
-                    'code' => '404'
+                    'code' => '404',
                 ]], 404);
         }
         return response()->json(['data' => $evaluations,
