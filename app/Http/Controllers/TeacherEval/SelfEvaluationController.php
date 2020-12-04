@@ -17,61 +17,95 @@ use App\Models\TeacherEval\Evaluation;
 
 class SelfEvaluationController extends Controller
 {
-    public function index(){
-        $selfResult = SelfResult::all();
-
-        if (sizeof($selfResult)=== 0) {
-            return response()->json([
-                'data' => null,
-                'msg' => [
-                    'summary' => 'AutoEvaluaciones no encontradas',
-                    'detail' => 'Intenta de nuevo',
-                    'code' => '404'
-                ]], 404);
-        }
-        return response()->json(['data' => $selfResult,
-            'msg' => [
-                'summary' => 'AutoEvaluaciones',
-                'detail' => 'Se consultó correctamente las autoEvaluaciones',
-                'code' => '200',
-            ]], 200);
-    } 
-
-    public function store(Request $request){
-        
+    public function store(Request $request)
+    {
+        $catalogues = json_decode(file_get_contents(storage_path() . "/catalogues.json"), true);
         $data = $request->json()->all();
         
-        $dataTeacher = $data['teacher'];
         $dataAnswerQuestions = $data['answer_questions'];
-        $teacher = Teacher::where('user_id',$dataTeacher['id'])->first();
-        $state = State::where('code', '1')->first();
-        
+        $teacher = Teacher::firstWhere('user_id',1 /* $request->user_id */);// user_id viene de un interceptor
+        $state = State::firstWhere('code', $catalogues['state']['type']['active']);
+        $schoolPeriod = SchoolPeriod::firstWhere('status_id', 1);//El 1 es Temporal
+        /*         $from = date('2020-10-27');
+                $to = date('2021-04-27'); */
+        //Obetenemos las fechas de inicio y fin del periodo para valiadar la obtencion de respuestas de selfEvaluation.
+        $startDatePeriod = date(SchoolPeriod::firstWhere('status_id', 1)->start_date);
+        $endDatePeriod = date(SchoolPeriod::firstWhere('status_id', 1)->end_date);
 
-        foreach ($dataAnswerQuestions as $eachAnswerQuestion) {
+        $evaluationTypeTeaching = EvaluationType::firstWhere('code', '3');
+        $evaluationTypeManagement = EvaluationType::firstWhere('code', '4');
+
+        $teacherHasEvaluation = Evaluation::where(function ($query) use ($evaluationTypeTeaching,$evaluationTypeManagement) {
+            $query->where('evaluation_type_id', $evaluationTypeTeaching->id)
+            ->orWhere('evaluation_type_id', $evaluationTypeManagement->id);
+        })
+        ->where('teacher_id', $teacher->id)
+        ->where('school_period_id', $schoolPeriod->id)
+        ->first();
+
+        $selfResult = null;
+
+        if (!$teacherHasEvaluation) {
+            foreach ($dataAnswerQuestions as $answerQuestion) {
+                $selfResult = new SelfResult();
+                $selfResult->state()->associate($state);
+                $selfResult->teacher()->associate($teacher);
+                $selfResult->answerQuestion()->associate(AnswerQuestion::findOrFail($answerQuestion['id']));
+                $selfResult->save();
+            }
             
-            $selfResult = new SelfResult();
+            //Obetenemos todas las autoEvaluaaciones de docencia segun el teacher , tipo de evalaucion y periodo.
+            $selfTeachingResults= SelfResult::where('teacher_id', $teacher->id)
+            ->whereBetween('created_at', [$startDatePeriod, $endDatePeriod])
+            ->with(['answerQuestion'=>function ($answerQuestion) {
+                $answerQuestion->with('answer');
+            }])->whereHas('answerQuestion', function ($answerQuestion) use ($evaluationTypeTeaching) {
+                $answerQuestion->whereHas('question', function ($question) use ($evaluationTypeTeaching) {
+                    $question->where('evaluation_type_id', $evaluationTypeTeaching->id);
+                });
+            })
+            ->get();
 
-            //Tomo el id de evaluationType para realizar validacion si ya existe el teacher y tipo de evaluacion en evaluacion.
-            $evaluationTypeId = AnswerQuestion::where('id',$eachAnswerQuestion['id'])->first()->question()->first()->evaluation_type_id;
-            $teacherHasEvaluation = Evaluation::where('teacher_id',$teacher->id)
-            ->where('evaluation_type_id',$evaluationTypeId)
-            ->first();
+            $resultsTotalValuesTeaching = 0;
+            $resultsTotalTeaching = 0;
 
-            if(!$teacherHasEvaluation){
-            $answerQuestion = AnswerQuestion::findOrFail($eachAnswerQuestion['id']);
-                 $selfResult->state()->associate($state);
-                 $selfResult->teacher()->associate($teacher);
-                 $selfResult->answerQuestion()->associate($answerQuestion);
-                 $selfResult->save();
-             }else{
-                $selfResult = null;
-             }
+            foreach ($selfTeachingResults as $selfTeachingResult) {
+                $result = json_decode(json_encode($selfTeachingResult));
             
-        }
-        if(!$teacherHasEvaluation){
-            $this->getResultSelf($teacher->id,$dataAnswerQuestions );
-        }
+                $resultsTotalValuesTeaching += (int)$result->answer_question->answer->value;
+            }
+            
+            if (sizeof($selfTeachingResults)>0) {
+                $resultsTotalTeaching  = $resultsTotalValuesTeaching/sizeof($selfTeachingResults);
+                $this->createEvaluation($teacher, $evaluationTypeTeaching, $resultsTotalTeaching, $schoolPeriod);
+            }
 
+            //Obetenemos todas las autoEvaluaaciones de gestion segun el teacher , tipo de evalaucion y periodo..
+            $selfManagementResults= SelfResult::where('teacher_id', $teacher->id)
+            ->whereBetween('created_at', [$startDatePeriod, $endDatePeriod])
+                    ->with(['answerQuestion'=>function ($answerQuestion) {
+                        $answerQuestion->with('answer');
+                    }])->whereHas('answerQuestion', function ($answerQuestion) use ($evaluationTypeManagement) {
+                        $answerQuestion->whereHas('question', function ($question) use ($evaluationTypeManagement) {
+                            $question->where('evaluation_type_id', $evaluationTypeManagement->id);
+                        });
+                    })
+                    ->get();
+
+            $resultsTotalValuesManagement = 0;
+            $resultsTotalManagement = 0;
+
+            foreach ($selfManagementResults as $selfManagementResult) {
+                $result = json_decode(json_encode($selfManagementResult));
+                    
+                $resultsTotalValuesManagement += (int)$result->answer_question->answer->value;
+            }
+            
+            if (sizeof($selfManagementResults)>0) {
+                $resultsTotalManagement  = $resultsTotalValuesManagement/sizeof($selfManagementResults);
+                $this->createEvaluation($teacher, $evaluationTypeManagement, $resultsTotalManagement, $schoolPeriod);
+            }
+        }
         if (!$selfResult) {
             return response()->json([
                 'data' => null,
@@ -89,51 +123,24 @@ class SelfEvaluationController extends Controller
             ]], 201);
     }
 
-    //Metodo para realizar los calculos y sacar la nota de docencia y gestion con el porcentaje aplicado.
-    public function getResultSelf( $teacherId, $AnswerQuestions ){
-        
-        $resultEvaluation = 0;
-        foreach($AnswerQuestions as $eachAnswerQuestion){
-
-            $answerQuestion = AnswerQuestion::where('id',$eachAnswerQuestion['id'])->first();
-            $value = $answerQuestion->answer()->first()->value;
-            $evaluationTypeId = $answerQuestion->question()->first()->evaluation_type_id;
-            $evaluationTypeParent = EvaluationType::where('id',$evaluationTypeId)->first();
-            $percentage = $evaluationTypeParent->parent()->first()->percentage;
-            
-            $resultEvaluation += ($value*$percentage)/100;
-
-        }
-        $this->createEvaluation($teacherId,$evaluationTypeId,$resultEvaluation);
-    }
-
     //Metodo para guardar en la tabla evaluations.
-    public function createEvaluation( $teacherId, $evaluationTypeId, $resultEvaluation ){
-
-            $evaluation = new Evaluation();
+    public function createEvaluation($teacher, $evaluationType, $result, $schoolPeriod)
+    {
+        $evaluation = new Evaluation();
     
-            $evaluation->result = $resultEvaluation;
+        $catalogues = json_decode(file_get_contents(storage_path() . "/catalogues.json"), true);
+        $evaluation->result = $result;
+        $evaluation->percentage = $evaluationType->percentage;
 
-            $state = State::where('code','1')->first();
-            $catalogueStatus = Catalogue::where('type','STATUS')->Where('code','1')->first();
-            $teacher = Teacher::findOrFail($teacherId);
-            $evaluationType = EvaluationType::findOrFail($evaluationTypeId);
-            $schoolPeriod = SchoolPeriod::where('code',1)->first();
+        $state = State::firstWhere('code', $catalogues['state']['type']['active']);
+        $status = Catalogue::where('type', 'STATUS')->Where('code', '1')->first();
 
-            $evaluation->state()->associate($state);
-            $evaluation->status()->associate($catalogueStatus);
-            $evaluation->teacher()->associate($teacher);
-            $evaluation->evaluationType()->associate($evaluationType);
-            $evaluation->schoolPeriod()->associate($schoolPeriod);
-    
-            $evaluation->save();
-    }
+        $evaluation->state()->associate($state);
+        $evaluation->status()->associate($status);
+        $evaluation->teacher()->associate($teacher);
+        $evaluation->evaluationType()->associate($evaluationType);
+        $evaluation->schoolPeriod()->associate($schoolPeriod);
 
-    public function update(Request $request){
-        return $request;
-    }
-
-    public function destroy($id){
-        return $id;
+        $evaluation->save();
     }
 }

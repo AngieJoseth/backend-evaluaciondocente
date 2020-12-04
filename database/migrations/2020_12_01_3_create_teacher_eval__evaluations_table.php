@@ -15,9 +15,8 @@ class CreateTeacherEvalEvaluationsTable extends Migration
             $table->foreignId('school_period_id')->comment('periodo academico')->constrained('ignug.school_periods');;
             $table->foreignId('status_id')->constrained('ignug.catalogues'); 
             $table->foreignId('state_id')->comment('Activo o Inactivo')->constrained('ignug.states');
-            $table->foreignId('status_id')->constrained('ignug.catalogues'); 
-            $table->foreignId('school_period_id');
             $table->double('result',5,2)->nullable()->comment('Total Evaluacion');
+            $table->double('percentage')->nullable()->comment('Porcentaje cada Tipo Evaluacion');;
             $table->timestamps();
         });
     }

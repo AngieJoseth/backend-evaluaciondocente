@@ -13,7 +13,8 @@ class AnswerController extends Controller
 {
     public function index()
     {
-        $state = State::where('code','1')->first();
+        $catalogues = json_decode(file_get_contents(storage_path() . "/catalogues.json"), true);
+        $state = State::firstWhere('code', $catalogues['state']['type']['active']);
         $answers = Answer::with('status')->where('state_id',$state->id)->get();
 
         if (sizeof($answers)=== 0) {
@@ -56,10 +57,14 @@ class AnswerController extends Controller
     }  
 
     public function store(Request $request){
+
+        $catalogues = json_decode(file_get_contents(storage_path() . "/catalogues.json"), true);
         $data = $request->json()->all();
 
         $dataAnswer = $data['answer'];
         $dataStatus= $data['status'];
+        $state = State::firstWhere('code', $catalogues['state']['type']['active']);
+        $status = Catalogue::find($dataStatus['id']);
        
         $answer = new Answer();
         $answer->code = $dataAnswer['code'];
@@ -67,9 +72,6 @@ class AnswerController extends Controller
         $answer->name = $dataAnswer['name'];
         $answer->value = $dataAnswer['value'];
 
-        $state = State::where('code','1')->first();
-        $status = Catalogue::find($dataStatus['id']);
-  
         $answer->state()->associate($state);
         $answer->status()->associate($status);
         $answer->save();
