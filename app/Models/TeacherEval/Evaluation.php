@@ -16,8 +16,11 @@ class Evaluation extends Model implements Auditable
     use HasFactory;
 
     protected $connection = 'pgsql-teacher-eval';
+    protected $table = 'teacher_eval.evaluations';
+
     protected $fillable=[
-        'result'
+        'result',
+        'percentage'
     ];
 
     public function teacher()

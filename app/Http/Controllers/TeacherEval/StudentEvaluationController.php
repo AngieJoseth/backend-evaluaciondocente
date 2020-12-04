@@ -10,8 +10,10 @@ use App\Models\TeacherEval\StudentResult;
 use App\Models\Ignug\State;
 use App\Models\Ignug\Student;
 use App\Models\Ignug\Catalogue;
+use App\Models\Ignug\Career;
 use App\Models\Ignug\SubjectTeacher;
 use App\Models\TeacherEval\AnswerQuestion;
+use App\Models\TeacherEval\DetailEvaluation;
 use App\Models\TeacherEval\Evaluation;
 use App\Models\Ignug\SchoolPeriod;
 use App\Models\Ignug\Teacher;
@@ -86,25 +88,26 @@ class StudentEvaluationController extends Controller
 
 
      //Metodo para realizar los calculos y sacar la nota de docencia y gestion con el porcentaje aplicado.
-    public function getResultStudent( $teacherId, $AnswerQuestions ){
+    // public function getResultStudent( $teacherId, $AnswerQuestions ){
         
-        $resultEvaluation = 0;
-        foreach($AnswerQuestions as $eachAnswerQuestion){
+    //     $resultEvaluation = 0;
+    //     foreach($AnswerQuestions as $eachAnswerQuestion){
 
-            $answerQuestion = AnswerQuestion::where('id',$eachAnswerQuestion['id'])->first();
-            $value = $answerQuestion->answer()->first()->value;
-            $evaluationTypeId = $answerQuestion->question()->first()->evaluation_type_id;
-            $evaluationTypeParent = EvaluationType::where('id',$evaluationTypeId)->first();
-            $percentage = $evaluationTypeParent->parent()->first()->percentage;
+    //         $answerQuestion = AnswerQuestion::where('id',$eachAnswerQuestion['id'])->first();
+    //         $value = $answerQuestion->answer()->first()->value;
+    //         $evaluationTypeId = $answerQuestion->question()->first()->evaluation_type_id;
+    //         $evaluationTypeParent = EvaluationType::where('id',$evaluationTypeId)->first();
+    //         $percentage = $evaluationTypeParent->parent()->first()->percentage;
             
-            $resultEvaluation += ($value*$percentage)/100;
+    //         $resultEvaluation += ($value*$percentage)/100;
 
-        }
-        $this->createEvaluation($teacherId,$evaluationTypeId,$resultEvaluation);
-    }
+    //     }
+    //     $this->createEvaluation($teacherId,$evaluationTypeId,$resultEvaluation);
+    // }
     public function createEvaluation($teacher,$schoolPeriod,$result,$evaluationType){
         
             $evaluation = new Evaluation();
+            $evaluation->percentage = $evaluationType->percentage;
 
             $evaluation->teacher()->associate($teacher);   
             $evaluation->schoolPeriod()->associate($schoolPeriod);            
@@ -117,16 +120,22 @@ class StudentEvaluationController extends Controller
             $evaluation->save();
              
             return $evaluation;
-            
-        
     }
     
 
     //Metodo para guardar en la tabla evaluations.
     public function calculateResults( Request $request ){
         //$schoolPeriod= SchoolPeriod::firstWhere('status_id',1);
-        $schoolPeriod= SchoolPeriod::where('status_id',Catalogue::where('code','1')->where('type','STATUS'))->first();
+        $schoolPeriod= SchoolPeriod::where('status_id',Catalogue::where('code','1')->where('type','STATUS')->first()->id)->first();
         $teachers= Teacher::get();
+        // $teachers= Career::where('state_id',1)->get();
+
+        // foreach($teachers as $teacher){ 
+        //     $teacher->teachers()->where('state_id', 1)->with('careerable_id')->get();
+        // }
+
+        // return $teacher;
+
         $evaluationTypeDocencia = EvaluationType::firstWhere('code','5');  //docencia
         $evaluationTypeGestion = EvaluationType::firstWhere('code','6');  //gestion
 
@@ -136,7 +145,7 @@ class StudentEvaluationController extends Controller
             ->where('teacher_id',$teacher->id)
             ->get();            
         
-
+            
             $resultadoDocencia=0;
             $resultadoGestion=0;
             foreach($subjectTeachers as $subjectTeacher){

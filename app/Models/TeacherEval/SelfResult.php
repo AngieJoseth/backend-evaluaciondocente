@@ -13,6 +13,7 @@ class SelfResult extends Model implements Auditable
 {
     use \OwenIt\Auditing\Auditable;
     protected $connection = 'pgsql-teacher-eval';
+    protected $table = 'teacher_eval.self_results';
 
     public function teacher()
     {

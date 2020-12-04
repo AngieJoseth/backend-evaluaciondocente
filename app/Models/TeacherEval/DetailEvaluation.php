@@ -13,7 +13,7 @@ class DetailEvaluation extends Model implements Auditable
     use HasFactory;
 
     protected $connection = 'pgsql-teacher-eval';
-
+    protected $table = 'teacher_eval.detail_evaluations';
     protected $fillable = [
         'result'
     ];

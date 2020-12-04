@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class AnswerQuestion extends Model
 {
     protected $connection = 'pgsql-teacher-eval';
-    protected $table ='answer_question';
+    protected $table = 'teacher_eval.answer_question';
 
     public function answer()
     {

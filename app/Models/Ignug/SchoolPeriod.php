@@ -10,7 +10,6 @@ class SchoolPeriod extends Model
 {
     use HasFactory;
     protected $connection = 'pgsql-ignug';
-    protected $table= 'school_periods';
     protected $fillable = [
         'code',
         'name',
@@ -28,7 +27,7 @@ class SchoolPeriod extends Model
     {
         return $this->belongsTo(State::class);
     }
-    public function subjectTeacher(){
+    public function subjectTeachers(){
         return $this->hasMany(SubjectTeacher::class);
     }
     public function status()

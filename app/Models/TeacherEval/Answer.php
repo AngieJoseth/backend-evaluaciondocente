@@ -14,7 +14,7 @@ class Answer extends Model implements Auditable
     use HasFactory;
 
     protected $connection = 'pgsql-teacher-eval';
-
+    protected $table = 'teacher_eval.answers';
     protected $fillable = [
         'code',
         'order',

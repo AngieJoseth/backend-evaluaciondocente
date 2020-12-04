@@ -14,7 +14,7 @@ class PairResult extends Model implements Auditable
     use HasFactory;
 
     protected $connection = 'pgsql-teacher-eval';
-
+    protected $table = 'teacher_eval.pair_results';
     protected $fillable = [];
 
     public function detailEvaluation()

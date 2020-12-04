@@ -17,7 +17,7 @@ class StudentResult extends Model implements Auditable
     use HasFactory;
 
     protected $connection = 'pgsql-teacher-eval';
-
+    protected $table = 'teacher_eval.student_results';
     public function subjectTeacher()
     {
         return $this->belongsTo(SubjectTeacher::class);
